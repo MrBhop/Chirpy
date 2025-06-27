@@ -7,7 +7,7 @@ import (
 
 func (a *apiConfig) handlerReset(w http.ResponseWriter, r *http.Request) {
 	if a.platform != "dev" {
-		fmt.Println("Permission denied, platform=%s", a.platform)
+		fmt.Printf("Permission denied, platform=%s", a.platform)
 		w.WriteHeader(http.StatusForbidden)
 		w.Write([]byte("Reset is only allowed in dev environment."))
 		return
