@@ -13,19 +13,20 @@ import (
 
 type setOfString = map[string]struct{}
 
+type chirp struct {
+	Id         uuid.UUID `json:"id"`
+	Created_at time.Time `json:"created_at"`
+	Updated_at time.Time `json:"updated_at"`
+	Body       string    `json:"body"`
+	UserId     uuid.UUID `json:"user_id"`
+}
+
 const maxChirpLength = 140
 
-func (a *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
+func (a *apiConfig) handlerChirpsCreate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Body string `json:"body"`
 		UserId uuid.UUID `json:"user_id"`
-	}
-	type returnVals struct {
-		Id         uuid.UUID `json:"id"`
-		Created_at time.Time `json:"created_at"`
-		Updated_at time.Time `json:"updated_at"`
-		Body       string    `json:"body"`
-		UserId     uuid.UUID `json:"user_id"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -43,7 +44,7 @@ func (a *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user_id := params.UserId
-	chirp, err := a.db.CreateChirp(r.Context(), database.CreateChirpParams{
+	newChirp, err := a.db.CreateChirp(r.Context(), database.CreateChirpParams{
 		Body: cleanedMessage,
 		UserID: user_id,
 	})
@@ -52,12 +53,12 @@ func (a *apiConfig) handlerChirps(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJson(w, http.StatusCreated, returnVals{
-		Id: chirp.ID,
-		Created_at: chirp.CreatedAt,
-		Updated_at: chirp.UpdatedAt,
-		Body: chirp.Body,
-		UserId: chirp.UserID,
+	respondWithJson(w, http.StatusCreated, chirp{
+		Id: newChirp.ID,
+		Created_at: newChirp.CreatedAt,
+		Updated_at: newChirp.UpdatedAt,
+		Body: newChirp.Body,
+		UserId: newChirp.UserID,
 	})
 }
 
