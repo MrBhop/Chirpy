@@ -15,6 +15,7 @@ import (
 type apiConfig struct {
 	fileServerHits atomic.Int32
 	db             *database.Queries
+	platform       string
 }
 
 func main() {
@@ -25,6 +26,10 @@ func main() {
 	dbUrl := os.Getenv("DB_URL")
 	if dbUrl == "" {
 		log.Fatal("DB_URL must be set")
+	}
+	platform := os.Getenv("PLATFORM")
+	if platform == "" {
+		log.Fatal("PLATFORM must be set")
 	}
 	
 	dbConnection, err := sql.Open("postgres", dbUrl)
@@ -37,6 +42,7 @@ func main() {
 	apiCfg := apiConfig{
 		fileServerHits: atomic.Int32{},
 		db: dbQueries,
+		platform: platform,
 	}
 
 	mux := http.NewServeMux()
@@ -45,6 +51,7 @@ func main() {
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerHits)
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
 	mux.HandleFunc("POST /api/validate_chirp", handlerValidateChirp)
+	mux.HandleFunc("POST /api/users", handlerUsersCreate(&apiCfg))
 
 	server := &http.Server{
 		Addr: ":" + port,
