@@ -11,14 +11,16 @@ import (
 )
 
 type userAuthParams struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email            string `json:"email"`
+	Password         string `json:"password"`
+	ExpiresInSeconds int    `json:"expires_in_seconds"`
 }
 type userReturn struct {
 	Id         uuid.UUID `json:"id"`
 	Created_at time.Time `json:"created_at"`
 	Updated_at time.Time `json:"updated_at"`
 	Email      string    `json:"email"`
+	Token      string    `json:"token"`
 }
 
 func (a *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {

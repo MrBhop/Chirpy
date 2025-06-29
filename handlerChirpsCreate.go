@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/MrBhop/Chirpy/internal/auth"
 	"github.com/MrBhop/Chirpy/internal/database"
 	"github.com/google/uuid"
 )
@@ -25,8 +26,20 @@ const maxChirpLength = 140
 
 func (a *apiConfig) handlerChirpsCreate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Body string `json:"body"`
+		Body   string    `json:"body"`
 		UserId uuid.UUID `json:"user_id"`
+	}
+
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, err.Error(), err)
+		return
+	}
+
+	userId, err := auth.ValidateJWT(token, a.secret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Invalid Token", err)
+		return
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -43,10 +56,9 @@ func (a *apiConfig) handlerChirpsCreate(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	user_id := params.UserId
 	newChirp, err := a.db.CreateChirp(r.Context(), database.CreateChirpParams{
 		Body: cleanedMessage,
-		UserID: user_id,
+		UserID: userId,
 	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create chirp", err)
