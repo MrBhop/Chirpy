@@ -53,6 +53,7 @@ func main() {
 	mux.HandleFunc("POST /admin/reset", apiCfg.HandlerReset)
 
 	mux.HandleFunc("POST /api/users", apiCfg.HandlerUsersCreate)
+	mux.HandleFunc("PUT /api/users", apiCfg.HandlerUsersChange)
 	mux.HandleFunc("POST /api/chirps", apiCfg.HandlerChirpsCreate)
 	mux.HandleFunc("POST /api/login", apiCfg.HandlerLogin)
 	mux.HandleFunc("POST /api/refresh", apiCfg.HandlerRefresh)
