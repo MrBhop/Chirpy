@@ -49,5 +49,6 @@ func (a *ApiConfig) HandlerUsersChange(w http.ResponseWriter, r *http.Request) {
 		Created_at: user.CreatedAt,
 		Updated_at: user.UpdatedAt,
 		Email: user.Email,
+		IsChirpyRed:user.IsChirpyRed,
 	})
 }

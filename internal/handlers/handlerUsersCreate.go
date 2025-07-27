@@ -21,6 +21,7 @@ type userReturn struct {
 	Email        string    `json:"email"`
 	Token        string    `json:"token"`
 	RefreshToken string    `json:"refresh_token"`
+	IsChirpyRed  bool      `json:"is_chirpy_red"`
 }
 
 func (a *ApiConfig) HandlerUsersCreate(w http.ResponseWriter, r *http.Request) {
@@ -51,5 +52,6 @@ func (a *ApiConfig) HandlerUsersCreate(w http.ResponseWriter, r *http.Request) {
 		Created_at: user.CreatedAt,
 		Updated_at: user.UpdatedAt,
 		Email: user.Email,
+		IsChirpyRed: user.IsChirpyRed,
 	})
 }
