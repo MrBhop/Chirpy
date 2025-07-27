@@ -27,16 +27,16 @@ func (a *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var expiresIn time.Duration
-	if params.ExpiresInSeconds == 0 {
-		expiresIn = 1 * time.Hour
-	} else {
-		expiresIn = time.Duration(params.ExpiresInSeconds) * time.Second
-	}
-
+	expiresIn := 1 * time.Hour
 	token, err := auth.MakeJWT(user.ID, a.secret, expiresIn)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create JWT", err)
+		return
+	}
+
+	refreshToken, err := auth.MakeRegisteredRefreshToken(a.db, r, user.ID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't create refresh token", err)
 		return
 	}
 
@@ -46,6 +46,7 @@ func (a *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		Updated_at: user.UpdatedAt,
 		Email: user.Email,
 		Token: token,
+		RefreshToken: refreshToken,
 	})
 }
 

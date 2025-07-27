@@ -36,6 +36,10 @@ func (a *apiConfig) handlerChirpsCreate(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	fmt.Println()
+	fmt.Printf("received token: %s\n", token)
+	fmt.Println()
+
 	userId, err := auth.ValidateJWT(token, a.secret)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Invalid Token", err)

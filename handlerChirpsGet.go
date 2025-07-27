@@ -12,6 +12,7 @@ func (a *apiConfig) handlerChirpsGetAll(w http.ResponseWriter, r *http.Request) 
 	chirps, err := a.db.GetAllChirps(r.Context())
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't fetch chirps", err)
+		return
 	}
 
 	output := []chirp{}
