@@ -60,6 +60,7 @@ func main() {
 	mux.HandleFunc("POST /api/revoke", apiCfg.HandlerRevoke)
 	mux.HandleFunc("GET /api/chirps", apiCfg.HandlerChirpsGetAll)
 	mux.HandleFunc("GET /api/chirps/{" + handlers.ChirpIDParameter +"}", apiCfg.HandlerChirpsGet)
+	mux.HandleFunc("DELETE /api/chirps/{" + handlers.ChirpIDParameter +"}", apiCfg.HandlerChirpsDelete)
 
 	server := &http.Server{
 		Addr: ":" + port,
