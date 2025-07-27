@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/MrBhop/Chirpy/internal/auth"
 	"github.com/google/uuid"
 )
 
@@ -17,6 +18,18 @@ type webHooksParams struct {
 }
 
 func (a *ApiConfig) HandlerWebHooks(w http.ResponseWriter, r *http.Request) {
+	apiKey, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Couldn't find api key", err)
+		return
+	}
+
+	if apiKey != a.PolkaApiKey {
+		err := errors.New("Invalid ApiKey")
+		respondWithError(w, http.StatusUnauthorized, err.Error(), err)
+		return
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	var params webHooksParams
 	if err := decoder.Decode(&params); err != nil {
@@ -29,8 +42,7 @@ func (a *ApiConfig) HandlerWebHooks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := a.Db.EnableUserSubscription(r.Context(), params.Data.UserId)
-	if err != nil {
+	if _, err := a.Db.EnableUserSubscription(r.Context(), params.Data.UserId); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			respondWithError(w, http.StatusNotFound, "Couldn't find user", err)
 			return

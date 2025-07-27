@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/MrBhop/Chirpy/internal/auth"
@@ -33,7 +34,8 @@ func (a *ApiConfig) HandlerChirpsDelete(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if chirp.UserID != userId {
-		respondWithError(w, http.StatusForbidden, "you can't delete this chirp", nil)
+		err := errors.New("you can't delete this chirp")
+		respondWithError(w, http.StatusForbidden, err.Error(), err)
 		return
 	}
 
