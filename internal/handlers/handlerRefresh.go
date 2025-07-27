@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/MrBhop/Chirpy/internal/auth"
 )
 
-func (a *apiConfig) handlerRefresh(w http.ResponseWriter, r *http.Request) {
+func (a *ApiConfig) HandlerRefresh(w http.ResponseWriter, r *http.Request) {
 	type response struct {
 		Token string `json:"token"`
 	}
@@ -19,14 +19,14 @@ func (a *apiConfig) handlerRefresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := a.db.GetUserFromRefreshToken(r.Context(), token)
+	user, err := a.Db.GetUserFromRefreshToken(r.Context(), token)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, fmt.Sprintf("Couldn't fetch token from db: %v", err), err)
 		return
 	}
 
 	expiresIn := 1 * time.Hour
-	newToken, err := auth.MakeJWT(user.ID, a.secret, expiresIn)
+	newToken, err := auth.MakeJWT(user.ID, a.Secret, expiresIn)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create new token", err)
 		return

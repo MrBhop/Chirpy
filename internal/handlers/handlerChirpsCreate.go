@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -24,7 +24,7 @@ type chirp struct {
 
 const maxChirpLength = 140
 
-func (a *apiConfig) handlerChirpsCreate(w http.ResponseWriter, r *http.Request) {
+func (a *ApiConfig) HandlerChirpsCreate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Body   string    `json:"body"`
 		UserId uuid.UUID `json:"user_id"`
@@ -40,7 +40,7 @@ func (a *apiConfig) handlerChirpsCreate(w http.ResponseWriter, r *http.Request) 
 	fmt.Printf("received token: %s\n", token)
 	fmt.Println()
 
-	userId, err := auth.ValidateJWT(token, a.secret)
+	userId, err := auth.ValidateJWT(token, a.Secret)
 	if err != nil {
 		respondWithError(w, http.StatusUnauthorized, "Invalid Token", err)
 		return
@@ -60,7 +60,7 @@ func (a *apiConfig) handlerChirpsCreate(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	newChirp, err := a.db.CreateChirp(r.Context(), database.CreateChirpParams{
+	newChirp, err := a.Db.CreateChirp(r.Context(), database.CreateChirpParams{
 		Body: cleanedMessage,
 		UserID: userId,
 	})

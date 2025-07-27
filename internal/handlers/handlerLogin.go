@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"github.com/MrBhop/Chirpy/internal/auth"
 )
 
-func (a *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
+func (a *ApiConfig) HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var params userAuthParams
 	if err := decoder.Decode(&params); err != nil {
@@ -16,7 +16,7 @@ func (a *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := a.db.GetUserByEmail(r.Context(), params.Email)
+	user, err := a.Db.GetUserByEmail(r.Context(), params.Email)
 	if err != nil {
 		respondWithUnauthorized(w, err)
 		return
@@ -28,13 +28,13 @@ func (a *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	expiresIn := 1 * time.Hour
-	token, err := auth.MakeJWT(user.ID, a.secret, expiresIn)
+	token, err := auth.MakeJWT(user.ID, a.Secret, expiresIn)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create JWT", err)
 		return
 	}
 
-	refreshToken, err := auth.MakeRegisteredRefreshToken(a.db, r, user.ID)
+	refreshToken, err := auth.MakeRegisteredRefreshToken(a.Db, r, user.ID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create refresh token", err)
 		return

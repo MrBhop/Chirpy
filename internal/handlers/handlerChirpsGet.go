@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"net/http"
@@ -6,10 +6,10 @@ import (
 	"github.com/google/uuid"
 )
 
-const chirpIDParameter string = "chirpID"
+const ChirpIDParameter string = "chirpID"
 
-func (a *apiConfig) handlerChirpsGetAll(w http.ResponseWriter, r *http.Request) {
-	chirps, err := a.db.GetAllChirps(r.Context())
+func (a *ApiConfig) HandlerChirpsGetAll(w http.ResponseWriter, r *http.Request) {
+	chirps, err := a.Db.GetAllChirps(r.Context())
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't fetch chirps", err)
 		return
@@ -29,14 +29,14 @@ func (a *apiConfig) handlerChirpsGetAll(w http.ResponseWriter, r *http.Request) 
 	respondWithJson(w, http.StatusOK, output)
 }
 
-func (a *apiConfig) handlerChirpsGet(w http.ResponseWriter, r *http.Request) {
-	id, err := uuid.Parse(r.PathValue(chirpIDParameter))
+func (a *ApiConfig) HandlerChirpsGet(w http.ResponseWriter, r *http.Request) {
+	id, err := uuid.Parse(r.PathValue(ChirpIDParameter))
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "id could not be parsed to uuid", err)
 		return
 	}
 
-	responseChirp, err := a.db.GetChirpById(r.Context(), id)
+	responseChirp, err := a.Db.GetChirpById(r.Context(), id)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, "Couldn't fetch chirp", err)
 		return

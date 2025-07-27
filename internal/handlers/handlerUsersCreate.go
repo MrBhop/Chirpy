@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -23,7 +23,7 @@ type userReturn struct {
 	RefreshToken string    `json:"refresh_token"`
 }
 
-func (a *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
+func (a *ApiConfig) HandlerUsersCreate(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var params userAuthParams
 	if err := decoder.Decode(&params); err != nil {
@@ -37,7 +37,7 @@ func (a *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := a.db.CreateUser(r.Context(), database.CreateUserParams{
+	user, err := a.Db.CreateUser(r.Context(), database.CreateUserParams{
 		Email: params.Email,
 		HashedPassword: hash,
 	})

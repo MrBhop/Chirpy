@@ -8,16 +8,10 @@ import (
 	"sync/atomic"
 
 	"github.com/MrBhop/Chirpy/internal/database"
+	"github.com/MrBhop/Chirpy/internal/handlers"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
-
-type apiConfig struct {
-	fileServerHits atomic.Int32
-	db             *database.Queries
-	platform       string
-	secret         string
-}
 
 func main() {
 	const filepathRoot = "."
@@ -44,27 +38,27 @@ func main() {
 	
 	dbQueries := database.New(dbConnection)
 
-	apiCfg := apiConfig{
-		fileServerHits: atomic.Int32{},
-		db: dbQueries,
-		platform: platform,
-		secret: secret,
+	apiCfg := handlers.ApiConfig{
+		FileServerHits: atomic.Int32{},
+		Db: dbQueries,
+		Platform: platform,
+		Secret: secret,
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/app/", apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))))
-	mux.HandleFunc("GET /api/healthz", handlerReadiness)
+	mux.Handle("/app/", apiCfg.MiddlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))))
+	mux.HandleFunc("GET /api/healthz", handlers.HandlerReadiness)
 
-	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerHits)
-	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
+	mux.HandleFunc("GET /admin/metrics", apiCfg.HandlerHits)
+	mux.HandleFunc("POST /admin/reset", apiCfg.HandlerReset)
 
-	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
-	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
-	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
-	mux.HandleFunc("POST /api/refresh", apiCfg.handlerRefresh)
-	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
-	mux.HandleFunc("GET /api/chirps", apiCfg.handlerChirpsGetAll)
-	mux.HandleFunc("GET /api/chirps/{" + chirpIDParameter +"}", apiCfg.handlerChirpsGet)
+	mux.HandleFunc("POST /api/users", apiCfg.HandlerUsersCreate)
+	mux.HandleFunc("POST /api/chirps", apiCfg.HandlerChirpsCreate)
+	mux.HandleFunc("POST /api/login", apiCfg.HandlerLogin)
+	mux.HandleFunc("POST /api/refresh", apiCfg.HandlerRefresh)
+	mux.HandleFunc("POST /api/revoke", apiCfg.HandlerRevoke)
+	mux.HandleFunc("GET /api/chirps", apiCfg.HandlerChirpsGetAll)
+	mux.HandleFunc("GET /api/chirps/{" + handlers.ChirpIDParameter +"}", apiCfg.HandlerChirpsGet)
 
 	server := &http.Server{
 		Addr: ":" + port,

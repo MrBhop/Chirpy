@@ -1,18 +1,18 @@
-package main
+package handlers
 
 import (
 	"fmt"
 	"net/http"
 )
 
-func (a *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
+func (a *ApiConfig) MiddlewareMetricsInc(next http.Handler) http.Handler {
 	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
-		a.fileServerHits.Add(1)
+		a.FileServerHits.Add(1)
 		next.ServeHTTP(w, r)
 	})
 }
 
-func (a *apiConfig) handlerHits(w http.ResponseWriter, _ *http.Request) {
+func (a *ApiConfig) HandlerHits(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Add("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(fmt.Appendf(nil, `
@@ -22,5 +22,5 @@ func (a *apiConfig) handlerHits(w http.ResponseWriter, _ *http.Request) {
 		<p>Chirpy has been visited %d times!</p>
 	</body>
 </html>
-	`, a.fileServerHits.Load()))
+	`, a.FileServerHits.Load()))
 }
