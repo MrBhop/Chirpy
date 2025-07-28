@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"net/http"
+	"sort"
+	"strings"
 
 	"github.com/MrBhop/Chirpy/internal/database"
 	"github.com/google/uuid"
@@ -9,9 +11,13 @@ import (
 
 const ChirpIDParameter string = "chirpID"
 const ChirpAuthorIDParameter string = "author_id"
+const ChirpSortParameter string = "sort"
 
 func (a *ApiConfig) HandlerChirpsGetAll(w http.ResponseWriter, r *http.Request) {
 	authorIdString := r.URL.Query().Get(ChirpAuthorIDParameter)
+	sortString := r.URL.Query().Get(ChirpSortParameter)
+
+	sortAscending := strings.ToLower(sortString) != "desc"
 
 	var chirps []database.Chirp
 	if authorIdString == "" {
@@ -25,6 +31,7 @@ func (a *ApiConfig) HandlerChirpsGetAll(w http.ResponseWriter, r *http.Request) 
 		authorId, err := uuid.Parse(authorIdString)
 		if err != nil {
 			respondWithError(w, http.StatusBadRequest, "could not parse author_id to uuid", err)
+			return
 		}
 		dbChirps, err := a.Db.GetChirpByAuthorId(r.Context(), authorId)
 		if err != nil {
@@ -44,6 +51,14 @@ func (a *ApiConfig) HandlerChirpsGetAll(w http.ResponseWriter, r *http.Request) 
 			UserId: c.UserID,
 		})
 	}
+
+	sort.Slice(output, func(i, j int) bool {
+		if sortAscending {
+			return output[i].Created_at.Before(output[j].Created_at)
+		} else {
+			return output[i].Created_at.After(output[j].Created_at)
+		}
+	})
 
 	respondWithJson(w, http.StatusOK, output)
 }
