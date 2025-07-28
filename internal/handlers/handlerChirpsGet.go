@@ -3,16 +3,35 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/MrBhop/Chirpy/internal/database"
 	"github.com/google/uuid"
 )
 
 const ChirpIDParameter string = "chirpID"
+const ChirpAuthorIDParameter string = "author_id"
 
 func (a *ApiConfig) HandlerChirpsGetAll(w http.ResponseWriter, r *http.Request) {
-	chirps, err := a.Db.GetAllChirps(r.Context())
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't fetch chirps", err)
-		return
+	authorIdString := r.URL.Query().Get(ChirpAuthorIDParameter)
+
+	var chirps []database.Chirp
+	if authorIdString == "" {
+		dbChirps, err := a.Db.GetAllChirps(r.Context())
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Couldn't fetch chirps", err)
+			return
+		}
+		chirps = dbChirps
+	} else {
+		authorId, err := uuid.Parse(authorIdString)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, "could not parse author_id to uuid", err)
+		}
+		dbChirps, err := a.Db.GetChirpByAuthorId(r.Context(), authorId)
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Couldn't fetch chirps", err)
+			return
+		}
+		chirps = dbChirps
 	}
 
 	output := []chirp{}

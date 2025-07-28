@@ -36,6 +36,5 @@ func MakeRegisteredRefreshToken(databaseConnection *database.Queries, r *http.Re
 		return "", err
 	}
 
-	fmt.Printf("\nReturning token: %s\n\n", tokenRecord.Token)
 	return tokenRecord.Token, nil
 }
